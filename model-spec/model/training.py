@@ -82,6 +82,6 @@ if __name__ == '__main__':
     sys.argv += ['--max_length', '128']
     sys.argv += ['--lr', '5e-6']
     sys.argv += ['--split', '0']
-    sys.argv += ['--checkpoint_output_dir', 'checkpoint']
+    sys.argv += ['--checkpoint_output_dir', '/tmp/checkpoint']
     """
     main(args=parse_args())
