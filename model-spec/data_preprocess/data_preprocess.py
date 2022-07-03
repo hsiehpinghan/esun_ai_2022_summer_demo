@@ -123,7 +123,7 @@ def main(args):
                                                       sentence_list=item['sentence_list'],
                                                       words=words,
                                                       wrong_word_dict=wrong_word_dict,
-                                                      limit_per_sentence=30)
+                                                      limit_per_sentence=args.limit_per_sentence)
             f.write(f'{ground_truth_sentence}\n')
             for sentence in similar_sentences:
                 f.write(f'\t{sentence}\n')
@@ -137,6 +137,12 @@ def parse_args():
     parser.add_argument('--extract_dir',
                         type=str,
                         help='the directory which 2022summer_train_data.zip extract to')
+    parser.add_argument('--limit_per_sentence',
+                        type=int,
+                        help='max similar sentences size')
+    
+    
+
     args = parser.parse_args()
     return args
 
@@ -145,5 +151,6 @@ if __name__ == '__main__':
     sys.argv = [sys.argv[0]]
     sys.argv += ['--esun_data_path', '/home/hsiehpinghan/git/esun_ai_2022_summer_demo/model-spec/data/2022summer_train_data.zip']
     sys.argv += ['--extract_dir', '/home/hsiehpinghan/git/esun_ai_2022_summer_demo/model-spec/data']
+    sys.argv += ['--limit_per_sentence', '30']
     """
     main(args=parse_args())

@@ -48,24 +48,30 @@ def main(args):
                       max_length=args.max_length,
                       model_name=args.model_name,
                       lr=args.lr)
+    model_checkpoint = ModelCheckpoint(dirpath=os.path.join('/tmp', str(args.split)),
+                                       filename='{epoch:02d}-{val_epoch_char_error_rate:.3f}',
+                                       monitor='val_epoch_char_error_rate',
+                                       save_top_k=1,
+                                       mode='min',
+                                       auto_insert_metric_name=True,
+                                       save_weights_only=False,
+                                       every_n_epochs=1)
     trainer = Trainer.from_argparse_args(args=args,
                                          callbacks=[EarlyStopping(monitor='val_epoch_char_error_rate',
                                                                   patience=5,
                                                                   mode='min'),
-                                                    ModelCheckpoint(dirpath=os.path.join(args.checkpoint_output_dir, str(args.split)),
-                                                                    filename='{epoch:02d}-{val_epoch_char_error_rate:.3f}',
-                                                                    monitor='val_epoch_char_error_rate',
-                                                                    save_top_k=1,
-                                                                    mode='min',
-                                                                    auto_insert_metric_name=True,
-                                                                    save_weights_only=False,
-                                                                    every_n_epochs=1)])
+                                                    model_checkpoint])
     trainer.tune(model=model,
                  datamodule=datamodule)
     trainer.fit(model=model,
                 datamodule=datamodule)
     trainer.validate(model=model,
                      datamodule=datamodule)
+    best_model = EsunModel.load_from_checkpoint(checkpoint_path=model_checkpoint.best_model_path,
+                                                map_location=args.accelerator,
+                                                tokenizer=tokenizer)
+    best_model.tokenizer.save_pretrained(save_directory=os.path.join(args.checkpoint_output_dir, str(args.split))
+    best_model.bert.save_pretrained(save_directory=os.path.join(args.checkpoint_output_dir, str(args.split))
 
 if __name__ == '__main__':
     """
