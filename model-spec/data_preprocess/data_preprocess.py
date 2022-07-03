@@ -1,4 +1,5 @@
 import re
+import os
 import sys
 import json
 import numpy as np
@@ -101,13 +102,13 @@ def get_similar_sentences(ground_truth_sentence, sentence_list, words, wrong_wor
 def main(args):
     with zipfile.ZipFile(file=args.esun_data_path,
                          mode='r') as f:
-        f.extractall('../data/')
-    with open(file='../data/train_all.json',
+        f.extractall(args.extract_dir)
+    with open(file=os.path.join(args.extract_dir, 'train_all.json'),
               mode='r',
               encoding='utf-8') as f:
         items = json.load(fp=f)
     wrong_word_dict = get_wrong_word_dict(items=items)
-    with open(file='../data/esun_ai_2022_summer_20220415.txt',
+    with open(file=os.path.join(args.extract_dir, 'esun_ai_2022_summer_20220415.txt'),
               mode='w',
               encoding='utf-8-sig') as f:
         for (i, item) in tqdm(enumerate(items),
@@ -140,9 +141,7 @@ def parse_args():
     return args
 
 if __name__ == '__main__':
-    """
     sys.argv = [sys.argv[0]]
     sys.argv += ['--esun_data_path', '/home/hsiehpinghan/git/esun_ai_2022_summer_demo/model-spec/data/2022summer_train_data.zip']
     sys.argv += ['--extract_dir', '/home/hsiehpinghan/git/esun_ai_2022_summer_demo/model-spec/data']
-    """
     main(args=parse_args())
