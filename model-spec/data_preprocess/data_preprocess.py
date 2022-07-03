@@ -1,11 +1,12 @@
-import os
 import re
+import sys
 import json
 import numpy as np
 import random
 import zipfile
 
 from tqdm import tqdm
+from argparse import ArgumentParser
 
 def remove_not_chinese_char_or_space(text):
     text = re.sub(pattern='([^\u4e00-\u9fa5 ])+',
@@ -97,16 +98,16 @@ def get_similar_sentences(ground_truth_sentence, sentence_list, words, wrong_wor
         base_sentence_list.add(similar_sentence)
     return base_sentence_list
 
-def preprocess_20220415_data():
-    with zipfile.ZipFile(file='./data/2022summer_train_data.zip',
+def main(args):
+    with zipfile.ZipFile(file=args.esun_data_path,
                          mode='r') as f:
-        f.extractall('./data/')
-    with open(file='./data/train_all.json',
+        f.extractall('../data/')
+    with open(file='../data/train_all.json',
               mode='r',
               encoding='utf-8') as f:
         items = json.load(fp=f)
     wrong_word_dict = get_wrong_word_dict(items=items)
-    with open(file='./data/esun_ai_2022_summer_20220415.txt',
+    with open(file='../data/esun_ai_2022_summer_20220415.txt',
               mode='w',
               encoding='utf-8-sig') as f:
         for (i, item) in tqdm(enumerate(items),
@@ -126,5 +127,16 @@ def preprocess_20220415_data():
             for sentence in similar_sentences:
                 f.write(f'\t{sentence}\n')
 
+
+def parse_args():
+    parser = ArgumentParser()
+    parser.add_argument('--esun_data_path',
+                        type=str,
+                        help='2022summer_train_data.zip file path')
+    args = parser.parse_args()
+    return args
+
 if __name__ == '__main__':
-    preprocess_20220415_data()
+    sys.argv = [sys.argv[0]]
+    sys.argv += ['--esun_data_path', '../data/2022summer_train_data.zip']
+    main(args=parse_args())
