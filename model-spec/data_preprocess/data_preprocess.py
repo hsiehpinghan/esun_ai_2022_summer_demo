@@ -145,14 +145,13 @@ def get_cns_to_bopomofos(args):
     size_tmp = 0
     for cns in cns_to_bopomofos:
         size_tmp += len(cns_to_bopomofos[cns])
-    assert size_tmp == i
     return cns_to_bopomofos
 
 def get_char_to_bopomofos(args):
     char_to_bopomofos = {}
-    cns2unicode_file = [os.path.join(args.extract_dir, 'Open_Data/Fonts/MappingTables/Unicode', 'CNS2UNICODE_Unicode BMP.txt'),
-                        os.path.join(args.extract_dir, 'Open_Data/Fonts/MappingTables/Unicode', 'CNS2UNICODE_Unicode 2.txt'),
-                        os.path.join(args.extract_dir, 'Open_Data/Fonts/MappingTables/Unicode', 'CNS2UNICODE_Unicode 15.txt')]
+    cns2unicode_file = [os.path.join(args.extract_dir, 'Open_Data/MapingTables/Unicode', 'CNS2UNICODE_Unicode BMP.txt'),
+                        os.path.join(args.extract_dir, 'Open_Data/MapingTables/Unicode', 'CNS2UNICODE_Unicode 2.txt'),
+                        os.path.join(args.extract_dir, 'Open_Data/MapingTables/Unicode', 'CNS2UNICODE_Unicode 15.txt')]
     cns_to_bopomofos = get_cns_to_bopomofos(args=args)
     for cns2unicode_file in cns2unicode_file:
         with open(file=cns2unicode_file) as f:
@@ -304,7 +303,7 @@ def preprocess_char_to_similarity_bert_ids(args):
                   indent=4)
 
 def main(args):
-    preprocess_esun_data(args=args)
+    #preprocess_esun_data(args=args)
     preprocess_char_to_similarity_bert_ids(args=args)
 
 def parse_args():
