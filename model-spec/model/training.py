@@ -55,15 +55,15 @@ def main(args):
                      datamodule=datamodule)
 
 if __name__ == '__main__':
-    sys.argv = [sys.argv[0]]
-    sys.argv += ['--accelerator', 'cpu']
-    sys.argv += ['--accumulate_grad_batches', '1']
-    sys.argv += ['--benchmark']
-    sys.argv += ['--device', '1']
-    sys.argv += ['--log_every_n_steps', '1']
-    sys.argv += ['--max_epochs', '100']
-    sys.argv += ['--model_name', 'shibing624/macbert4csc-base-chinese']
-    sys.argv += ['--batch_size', '64']
-    sys.argv += ['--split', '0']
-    sys.argv += ['--checkpoint_output_dir', 'checkpoint']
+    #sys.argv = [sys.argv[0]]
+    #sys.argv += ['--accelerator', 'cpu']
+    #sys.argv += ['--accumulate_grad_batches', '1']
+    #sys.argv += ['--benchmark']
+    #sys.argv += ['--device', '1']
+    #sys.argv += ['--log_every_n_steps', '1']
+    #sys.argv += ['--max_epochs', '100']
+    #sys.argv += ['--model_name', 'shibing624/macbert4csc-base-chinese']
+    #sys.argv += ['--batch_size', '64']
+    #sys.argv += ['--split', '0']
+    #sys.argv += ['--checkpoint_output_dir', 'checkpoint']
     main(args=parse_args())
