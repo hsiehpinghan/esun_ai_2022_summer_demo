@@ -57,7 +57,6 @@ def main(args):
                                        auto_insert_metric_name=True,
                                        save_weights_only=False,
                                        every_n_epochs=1)
-    """
     trainer = Trainer.from_argparse_args(args=args,
                                          callbacks=[EarlyStopping(monitor='val_epoch_char_error_rate',
                                                                   patience=5,
@@ -69,11 +68,7 @@ def main(args):
                 datamodule=datamodule)
     trainer.validate(model=model,
                      datamodule=datamodule)
-    """
-    #print(model_checkpoint.best_model_path, '!!!')
-
-    best_model = EsunModel.load_from_checkpoint(#checkpoint_path=model_checkpoint.best_model_path,
-                                                checkpoint_path='/tmp/0/epoch=00-val_epoch_char_error_rate=0.002-v1.ckpt',
+    best_model = EsunModel.load_from_checkpoint(checkpoint_path='/tmp/0/epoch=00-val_epoch_char_error_rate=0.002-v1.ckpt',
                                                 map_location=torch.device('cuda' if args.accelerator=='gpu' else args.accelerator),
                                                 tokenizer=tokenizer,
                                                 max_length=args.max_length,
