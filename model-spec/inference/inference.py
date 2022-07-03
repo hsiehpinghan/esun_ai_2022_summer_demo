@@ -19,8 +19,7 @@ class EnsembleModel(nn.Module):
         super().__init__()
         models = []
         for pretrained_model_name_or_path in pretrained_model_name_or_paths:
-            model = BertForMaskedLM.from_pretrained(
-                pretrained_model_name_or_path=pretrained_model_name_or_path).to(device)
+            model = BertForMaskedLM.from_pretrained(pretrained_model_name_or_path=pretrained_model_name_or_path).to(device)
             model.eval()
             models.append(model)
         self._models = models
@@ -178,7 +177,7 @@ def get_model(checkpoints, device):
     return model
 
 def get_answer(tokenizer, model, request, char_to_similarity_bert_ids_file_path, device):
-    sentence_list = json.loads(request)['sentence_list']
+    sentence_list = request['sentence_list']
     chinese_only_sentences = get_chinese_only_sentences(sentences=sentence_list)
     sentences_list_similar = get_sentences_list_similar(
         sentence_list=chinese_only_sentences)
@@ -199,7 +198,7 @@ def main(args):
                       device=args.device)
     answer = get_answer(tokenizer=tokenizer,
                         model=model,
-                        request=args.request,
+                        request=json.loads(args.request),
                         char_to_similarity_bert_ids_file_path=args.char_to_similarity_bert_ids_file_path,
                         device=args.device)
     print(f'inference result: {answer}')
@@ -223,7 +222,7 @@ def parse_args():
     return args
 
 if __name__ == '__main__':
-
+    """
     sys.argv = [sys.argv[0]]
     sys.argv += ['--request', '{"esun_uuid": "adefb7e8d9268b972b95b6fa53db93780b6b22fbf", "esun_timestamp": 1590493849, "sentence_list": ["喂 你好 密碼 我 要 進去", "喂 你好 密碼 哇 進去", "喂 你好 密碼 的 話 進去", "喂 您好 密碼 我 要 進去", "喂 你好 密碼 無法 進去", "喂 你好 密碼 waa 進去", "喂 你好 密碼 while 進去", "喂 你好 密碼 文化 進去", "喂 你好 密碼 挖 進去", "喂 您好 密碼 哇 進去"], "phoneme_sequence_list": ["w eI4 n i:3 x aU4 m i:4 m A:3 w O:3 j aU1 ts6 j ax n4 ts6_h y4", "w eI4 n i:3 x aU4 m i:4 m A:3 w A:1 ts6 j ax n4 ts6_h y4", "w eI4 n i:3 x aU4 m i:4 m A:3 t ax5 x w A:4 ts6 j ax n4 ts6_h y4", "w eI4 n j ax n2 x aU4 m i:4 m A:3 w O:3 j aU1 ts6 j ax n4 ts6_h y4", "w eI4 n i:3 x aU4 m i:4 m A:3 u:2 f A:4 ts6 j ax n4 ts6_h y4", "w eI4 n i:3 x aU4 m i:4 m A:3 W AA1 ts6 j ax n4 ts6_h y4", "w eI4 n i:3 x aU4 m i:4 m A:3 W AY1 L ts6 j ax n4 ts6_h y4", "w eI4 n i:3 x aU4 m i:4 m A:3 w ax n2 x w A:4 ts6 j ax n4 ts6_h y4", "w eI4 n j ax n2 x aU4 m i:4 m A:3 w A:1 ts6 j ax n4 ts6_h y4", "w eI4 n i:3 x aU4 m i:4 m A:3 W IH1 L ts6 j ax n4 ts6_h y4"], "retry": 2}']
     sys.argv += ['--char_to_similarity_bert_ids_file_path', '/home/hsiehpinghan/git/esun_ai_2022_summer_demo/model-spec/data/char_to_similarity_bert_ids.json']    
@@ -233,5 +232,5 @@ if __name__ == '__main__':
                                   '/home/hsiehpinghan/git/esun_ai_2022_summer/model/sub_model_3',
                                   '/home/hsiehpinghan/git/esun_ai_2022_summer/model/sub_model_4']    
     sys.argv += ['--device', 'cpu']    
-
+    """
     main(args=parse_args())
