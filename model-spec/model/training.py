@@ -4,7 +4,7 @@ import torch
 
 from argparse import ArgumentParser
 from data import EsunDataModule
-from model.model import EsunModel
+from model import EsunModel
 from transformers import BertTokenizer
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import ModelCheckpoint
