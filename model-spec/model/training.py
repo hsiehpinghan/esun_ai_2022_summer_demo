@@ -70,8 +70,8 @@ def main(args):
     best_model = EsunModel.load_from_checkpoint(checkpoint_path=model_checkpoint.best_model_path,
                                                 map_location=args.accelerator,
                                                 tokenizer=tokenizer)
-    best_model.tokenizer.save_pretrained(save_directory=os.path.join(args.checkpoint_output_dir, str(args.split))
-    best_model.bert.save_pretrained(save_directory=os.path.join(args.checkpoint_output_dir, str(args.split))
+    best_model.tokenizer.save_pretrained(save_directory=os.path.join(args.checkpoint_output_dir, str(args.split)))
+    best_model.bert.save_pretrained(save_directory=os.path.join(args.checkpoint_output_dir, str(args.split)))
 
 if __name__ == '__main__':
     """
