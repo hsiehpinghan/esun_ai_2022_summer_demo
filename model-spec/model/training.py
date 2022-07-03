@@ -1,5 +1,6 @@
 import os
 import sys
+import torch
 
 from argparse import ArgumentParser
 from data import EsunDataModule
@@ -67,8 +68,11 @@ def main(args):
                 datamodule=datamodule)
     trainer.validate(model=model,
                      datamodule=datamodule)
+
+    print(model_checkpoint.best_model_path, '!!!')
+    
     best_model = EsunModel.load_from_checkpoint(checkpoint_path=model_checkpoint.best_model_path,
-                                                map_location=args.accelerator,
+                                                map_location=torch.device(args.accelerator),
                                                 tokenizer=tokenizer)
     best_model.tokenizer.save_pretrained(save_directory=os.path.join(args.checkpoint_output_dir, str(args.split)))
     best_model.bert.save_pretrained(save_directory=os.path.join(args.checkpoint_output_dir, str(args.split)))
