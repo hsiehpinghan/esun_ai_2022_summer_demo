@@ -303,7 +303,7 @@ def preprocess_char_to_similarity_bert_ids(args):
                   indent=4)
 
 def main(args):
-    #preprocess_esun_data(args=args)
+    preprocess_esun_data(args=args)
     preprocess_char_to_similarity_bert_ids(args=args)
 
 def parse_args():
@@ -324,9 +324,11 @@ def parse_args():
     return args
 
 if __name__ == '__main__':
+    """
     sys.argv = [sys.argv[0]]
     sys.argv += ['--esun_data_path', '/home/hsiehpinghan/git/esun_ai_2022_summer_demo/model-spec/data/2022summer_train_data.zip']
     sys.argv += ['--extract_dir', '/home/hsiehpinghan/git/esun_ai_2022_summer_demo/model-spec/data']
     sys.argv += ['--limit_per_sentence', '3']
     sys.argv += ['--char_to_similarity_bert_ids_file_path', '/home/hsiehpinghan/git/esun_ai_2022_summer_demo/model-spec/data/char_to_similarity_bert_ids.json']    
+    """
     main(args=parse_args())
