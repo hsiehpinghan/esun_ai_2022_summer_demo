@@ -141,7 +141,9 @@ def parse_args():
     return args
 
 if __name__ == '__main__':
+    """
     sys.argv = [sys.argv[0]]
     sys.argv += ['--esun_data_path', '/home/hsiehpinghan/git/esun_ai_2022_summer_demo/model-spec/data/2022summer_train_data.zip']
     sys.argv += ['--extract_dir', '/home/hsiehpinghan/git/esun_ai_2022_summer_demo/model-spec/data']
+    """
     main(args=parse_args())
