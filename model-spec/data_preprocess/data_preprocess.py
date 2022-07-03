@@ -133,10 +133,14 @@ def parse_args():
     parser.add_argument('--esun_data_path',
                         type=str,
                         help='2022summer_train_data.zip file path')
+    parser.add_argument('--extract_dir',
+                        type=str,
+                        help='the directory which 2022summer_train_data.zip extract to')
     args = parser.parse_args()
     return args
 
 if __name__ == '__main__':
-    #sys.argv = [sys.argv[0]]
-    #sys.argv += ['--esun_data_path', '../data/2022summer_train_data.zip']
+    sys.argv = [sys.argv[0]]
+    sys.argv += ['--esun_data_path', '/home/hsiehpinghan/git/esun_ai_2022_summer_demo/model-spec/data/2022summer_train_data.zip']
+    sys.argv += ['--extract_dir', '/home/hsiehpinghan/git/esun_ai_2022_summer_demo/model-spec/data']
     main(args=parse_args())

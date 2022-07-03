@@ -6,16 +6,14 @@ from transformers import BertForMaskedLM
 from pytorch_lightning import LightningModule
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-MAX_LEN = 128
-LEARNING_RATE = 5e-6
-MODEL_NAME = 'shibing624/macbert4csc-base-chinese'
-
 class EsunModel(LightningModule):
-    def __init__(self, tokenizer, *args, **kwargs):
+    def __init__(self, tokenizer, max_length, model_name, lr, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.bert = BertForMaskedLM.from_pretrained(MODEL_NAME)
+        self.bert = BertForMaskedLM.from_pretrained(model_name)
         self.detection = nn.Linear(self.bert.config.hidden_size, 1)
         self.tokenizer = tokenizer
+        self.max_length = max_length
+        self.lr = lr
         self.correction_acc_metric_train = torchmetrics.Accuracy()
         self.char_error_rate_metric_train = torchmetrics.CharErrorRate()
         self.correction_acc_metric_val = torchmetrics.Accuracy()
@@ -25,7 +23,7 @@ class EsunModel(LightningModule):
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(params=self.parameters(),
-                                     lr=LEARNING_RATE)
+                                     lr=self.lr)
         return {'optimizer': optimizer,
                 'lr_scheduler': {'scheduler': ReduceLROnPlateau(optimizer=optimizer,
                                                                 mode='min',
@@ -39,7 +37,7 @@ class EsunModel(LightningModule):
             correct_input_ids = self.tokenizer(correct_texts,
                                                padding=True,
                                                truncation=True,
-                                               max_length=MAX_LEN,
+                                               max_length=self.max_length,
                                                return_tensors='pt')['input_ids']
             correct_input_ids[correct_input_ids==0] = -100
             correct_input_ids = correct_input_ids.to(self.device)
@@ -48,7 +46,7 @@ class EsunModel(LightningModule):
         encoded_text = self.tokenizer(original_texts,
                                       padding=True,
                                       truncation=True,
-                                      max_length=MAX_LEN,
+                                      max_length=self.max_length,
                                       return_tensors='pt')
         encoded_text.to(self.device)
         bert_outputs = self.bert(**encoded_text,

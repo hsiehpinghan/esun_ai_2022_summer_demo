@@ -14,9 +14,18 @@ def parse_args():
     parser.add_argument('--model_name',
                         type=str,
                         help='huggingface model name')
+    parser.add_argument('--data_path',
+                        type=str,
+                        help='data path')
     parser.add_argument('--batch_size',
                         type=int,
                         help='batch size')
+    parser.add_argument('--max_length',
+                        type=int,
+                        help='max tokenized tokens length')
+    parser.add_argument('--lr',
+                        type=float,
+                        help='learning rate')
     parser.add_argument('--split',
                         type=int,
                         help='what kfold split in used.')
@@ -29,12 +38,16 @@ def parse_args():
 
 def main(args):
     tokenizer = BertTokenizer.from_pretrained(pretrained_model_name_or_path=args.model_name)
-    datamodule = EsunDataModule(batch_size=args.batch_size,
+    datamodule = EsunDataModule(data_path=args.data_path,
+                                batch_size=args.batch_size,
                                 tokenizer=tokenizer,
                                 split=args.split)
     datamodule.prepare_data()
     datamodule.setup(stage='fit')
-    model = EsunModel(tokenizer=tokenizer)
+    model = EsunModel(tokenizer=tokenizer,
+                      max_length=args.max_length,
+                      model_name=args.model_name,
+                      lr=args.lr)
     trainer = Trainer.from_argparse_args(args=args,
                                          callbacks=[EarlyStopping(monitor='val_epoch_char_error_rate',
                                                                   patience=5,
@@ -55,15 +68,20 @@ def main(args):
                      datamodule=datamodule)
 
 if __name__ == '__main__':
-    #sys.argv = [sys.argv[0]]
-    #sys.argv += ['--accelerator', 'cpu']
-    #sys.argv += ['--accumulate_grad_batches', '1']
-    #sys.argv += ['--benchmark']
-    #sys.argv += ['--device', '1']
-    #sys.argv += ['--log_every_n_steps', '1']
-    #sys.argv += ['--max_epochs', '100']
-    #sys.argv += ['--model_name', 'shibing624/macbert4csc-base-chinese']
-    #sys.argv += ['--batch_size', '64']
-    #sys.argv += ['--split', '0']
-    #sys.argv += ['--checkpoint_output_dir', 'checkpoint']
+    """
+    sys.argv = [sys.argv[0]]
+    sys.argv += ['--accelerator', 'cpu']
+    sys.argv += ['--accumulate_grad_batches', '1']
+    sys.argv += ['--benchmark']
+    sys.argv += ['--device', '1']
+    sys.argv += ['--log_every_n_steps', '1']
+    sys.argv += ['--max_epochs', '100']
+    sys.argv += ['--model_name', 'shibing624/macbert4csc-base-chinese']
+    sys.argv += ['--data_path', '/home/hsiehpinghan/git/esun_ai_2022_summer_demo/model-spec/data/esun_ai_2022_summer_20220415.txt']
+    sys.argv += ['--batch_size', '64']
+    sys.argv += ['--max_length', '128']
+    sys.argv += ['--lr', '5e-6']
+    sys.argv += ['--split', '0']
+    sys.argv += ['--checkpoint_output_dir', 'checkpoint']
+    """
     main(args=parse_args())

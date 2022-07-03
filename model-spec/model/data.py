@@ -1,12 +1,9 @@
 import re
-import torch
 
 from transformers import BertTokenizer
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 from pytorch_lightning import LightningDataModule
-
-DATA_FILE_PATH_20220415 = './data/esun_ai_2022_summer_20220415.txt'
 
 class EsunDataset(Dataset):
     def __init__(self, name, data):
@@ -31,14 +28,15 @@ class EsunDataCollator:
         return (original_texts, correct_texts)
 
 class EsunDataModule(LightningDataModule):
-    def __init__(self, batch_size, tokenizer, split):
+    def __init__(self, data_path, batch_size, tokenizer, split):
         super().__init__()
+        self.data_path = data_path
         self.batch_size = batch_size
         self.tokenizer = tokenizer
         self.split = split
 
     def prepare_data(self):
-        (data_train, data_val) = self._get_data(data_path=DATA_FILE_PATH_20220415)
+        (data_train, data_val) = self._get_data(data_path=self.data_path)
         self.data_train = data_train
         self.data_val = data_val
         print(f'data_train length({len(self.data_train)}) / data_val length({len(self.data_val)})')
@@ -127,13 +125,14 @@ class EsunDataModule(LightningDataModule):
         return text
 
 if __name__ == '__main__':
-    tokenizer_tmp = BertTokenizer.from_pretrained(pretrained_model_name_or_path='shibing624/macbert4csc-base-chinese')
-    esun_data_module = EsunDataModule(batch_size=2,
-                                      tokenizer=tokenizer_tmp,
+    tokenizer = BertTokenizer.from_pretrained(pretrained_model_name_or_path='shibing624/macbert4csc-base-chinese')
+    esun_data_module = EsunDataModule(data_path='/home/hsiehpinghan/git/esun_ai_2022_summer_demo/model-spec/data/esun_ai_2022_summer_20220415.txt',
+                                      batch_size=2,
+                                      tokenizer=tokenizer,
                                       split=0)
     esun_data_module.prepare_data()
     esun_data_module.setup(stage='validate')
-    val_dataloader_tmp = esun_data_module.val_dataloader()
-    for (i, batch) in enumerate(val_dataloader_tmp):
+    val_dataloader = esun_data_module.val_dataloader()
+    for (i, batch) in enumerate(val_dataloader):
         break
     print(batch)
