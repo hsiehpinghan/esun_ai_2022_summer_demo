@@ -110,15 +110,15 @@ def get_chinese_only_sentences(sentences):
 def get_sentences_similar(sentences_list_similar):
     return [sentence_similar for sentences_similar in sentences_list_similar for sentence_similar in sentences_similar]
 
-def get_char_to_similarity_bert_ids(args):
-    with open(file=args.char_to_similarity_bert_ids_file_path,
+def get_char_to_similarity_bert_ids(char_to_similarity_bert_ids_file_path):
+    with open(file=char_to_similarity_bert_ids_file_path,
               mode='r') as f:
         char_to_similarity_bert_ids = json.load(fp=f)
     return char_to_similarity_bert_ids
 
-def get_similarity_bert_ids_list(args, sentences_similar):
+def get_similarity_bert_ids_list(char_to_similarity_bert_ids_file_path, sentences_similar):
     similarity_bert_ids_list = [{} for _ in sentences_similar]
-    char_to_similarity_bert_ids = get_char_to_similarity_bert_ids(args=args)
+    char_to_similarity_bert_ids = get_char_to_similarity_bert_ids(char_to_similarity_bert_ids_file_path=char_to_similarity_bert_ids_file_path)
     for (sentence_index, sentence_similar) in enumerate(sentences_similar):
         for (char_index, diff_char) in enumerate(sentence_similar):
             if diff_char not in char_to_similarity_bert_ids:
@@ -130,11 +130,11 @@ def get_similarity_bert_ids_list(args, sentences_similar):
             similarity_bert_ids_list[sentence_index][char_index] = similarity_bert_ids
     return similarity_bert_ids_list
 
-def get_most_possible_sentences(args, model, tokenizer, sentences_similar, similarity_bert_ids_list):
+def get_most_possible_sentences(device, model, tokenizer, sentences_similar, similarity_bert_ids_list):
     with torch.no_grad():
         probs_list = model(**tokenizer(sentences_similar,
                                        padding=True,
-                                       return_tensors='pt').to(args.device))
+                                       return_tensors='pt').to(device))
     result = []
     assert len(probs_list) == len(
         sentences_similar), f'{len(probs_list)} / {len(sentences_similar)}'
@@ -159,40 +159,48 @@ def get_most_possible_sentences(args, model, tokenizer, sentences_similar, simil
                     key=lambda x: x[1],
                     reverse=True)
 
-def get_predict_sentence(args, model, tokenizer, sentences_similar, similarity_bert_ids_list):
-    most_possible_sentences = get_most_possible_sentences(args=args,
+def get_predict_sentence(device, model, tokenizer, sentences_similar, similarity_bert_ids_list):
+    most_possible_sentences = get_most_possible_sentences(device=device,
                                                           model=model,
                                                           tokenizer=tokenizer,
                                                           sentences_similar=sentences_similar,
                                                           similarity_bert_ids_list=similarity_bert_ids_list)
     return most_possible_sentences[0][0]
 
-def get_tokenizer(args):
+def get_tokenizer(checkpoints):
     tokenizer = AutoTokenizer.from_pretrained(
-        pretrained_model_name_or_path=args.checkpoints[0])
+        pretrained_model_name_or_path=checkpoints[0])
     return tokenizer
     
-def get_model(args):
-    model = EnsembleModel(pretrained_model_name_or_paths=args.checkpoints,
-                          device=args.device)
+def get_model(checkpoints, device):
+    model = EnsembleModel(pretrained_model_name_or_paths=checkpoints,
+                          device=device)
     return model
 
-def main(args):
-    sentence_list = json.loads(args.request)['sentence_list']
+def get_answer(request, char_to_similarity_bert_ids_file_path, checkpoints, device):
+    sentence_list = json.loads(request)['sentence_list']
     chinese_only_sentences = get_chinese_only_sentences(sentences=sentence_list)
     sentences_list_similar = get_sentences_list_similar(
         sentence_list=chinese_only_sentences)
     sentences_similar = get_sentences_similar(
         sentences_list_similar=sentences_list_similar)
-    similarity_bert_ids_list = get_similarity_bert_ids_list(args,
+    similarity_bert_ids_list = get_similarity_bert_ids_list(char_to_similarity_bert_ids_file_path,
                                                             sentences_similar=sentences_similar)
-    tokenizer = get_tokenizer(args=args)
-    model = get_model(args=args)
-    answer = get_predict_sentence(args=args,
+    tokenizer = get_tokenizer(checkpoints=checkpoints)
+    model = get_model(checkpoints=checkpoints,
+                      device=device)
+    answer = get_predict_sentence(device=device,
                                   model=model,
                                   tokenizer=tokenizer,
                                   sentences_similar=sentences_similar,
                                   similarity_bert_ids_list=similarity_bert_ids_list)
+    return answer
+
+def main(args):
+    answer = get_answer(request=args.request,
+                        char_to_similarity_bert_ids_file_path=args.char_to_similarity_bert_ids_file_path,
+                        checkpoints=args.checkpoints,
+                        device=args.device)
     print(f'inference result: {answer}')
 
 def parse_args():
