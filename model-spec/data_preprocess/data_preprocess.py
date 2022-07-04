@@ -28,6 +28,12 @@ def is_sentence_similar(no_space_sentence, ground_truth_sentence):
         return False
 
 def get_wrong_word_dict(items):
+    """
+    找出詞的錯誤翻譯詞
+    比對ground_truth_sentence與sentence_list，
+    找出每個詞可能被錯誤辨識成什麼字，
+    例如” 股市”這個詞經過比對後可以找出曾被錯誤辨識成”不是”、 ”不適”、 ”古市”、 ”古式”、 ”告示”、 ”故事”等詞。
+    """
     wrong_word_dict = {}
     for (i, item) in enumerate(items):
         id = item['id']
@@ -79,6 +85,10 @@ def get_similar_sentence(ground_truth_sentence, words, wrong_word_dict):
     return sentence_tmp
 
 def get_similar_sentences(ground_truth_sentence, sentence_list, words, wrong_word_dict, limit_per_sentence, is_add_ground_truth_sentence=True):
+    """
+    隨機將ground_truth_sentence資料中的詞替換成錯誤辨識的詞。
+    例如”可能導致股市泡沫再現”這個句子可能替換成” 可能導致不是泡沫再現”、 ” 可能導致不適泡沫再現”、 ” 可能導致古市泡沫再現”、 ” 可能導致古式泡沫再現”、 ” 可能導致告示泡沫再現” 、 ” 可能導致故事泡沫再現”。
+    """
     similar_sentences = set()
     for _ in range(limit_per_sentence * 3):
         similar_sentence = get_similar_sentence(ground_truth_sentence=ground_truth_sentence,
@@ -102,6 +112,9 @@ def get_similar_sentences(ground_truth_sentence, sentence_list, words, wrong_wor
     return base_sentence_list
 
 def preprocess_esun_data(args):
+    """
+    2022summer_train_data.zip資料處理
+    """
     with zipfile.ZipFile(file=args.esun_data_path,
                          mode='r') as f:
         f.extractall(args.extract_dir)
@@ -292,6 +305,9 @@ def download_vocab(args):
                          dir_path=args.extract_dir)
   
 def preprocess_char_to_similarity_bert_ids(args):
+    """
+    找出每個字相似讀音的字屬於那些bert的embedding id，並寫入檔案給推論後處理時使用。
+    """
     download_cns11643(args=args)
     download_vocab(args=args)
     char_to_similarity_bert_ids = get_char_to_similarity_bert_ids(args=args)

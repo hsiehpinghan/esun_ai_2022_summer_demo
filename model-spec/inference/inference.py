@@ -80,6 +80,9 @@ def split_list_if_different_too_much(sentences):
     return result
     
 def get_sentences_list_similar(sentence_list):
+    """
+    將相同長度且字相似比例>50%的sentence歸為一組。
+    """
     sentences_dict = defaultdict(list)
     for sentence in sentence_list:
         sentences_dict[len(sentence)].append(sentence)
@@ -107,15 +110,26 @@ def get_chinese_only_sentences(sentences):
     return chinese_only_sentences
 
 def get_sentences_similar(sentences_list_similar):
+    """
+    本函式本來有額外功能，
+    但現在已經不使用該功能，
+    所以目前只是單純做flatten。
+    """
     return [sentence_similar for sentences_similar in sentences_list_similar for sentence_similar in sentences_similar]
 
 def get_char_to_similarity_bert_ids(char_to_similarity_bert_ids_file_path):
+    """
+    取得每個字相似讀音的字屬於那些bert的embedding id
+    """
     with open(file=char_to_similarity_bert_ids_file_path,
               mode='r') as f:
         char_to_similarity_bert_ids = json.load(fp=f)
     return char_to_similarity_bert_ids
 
 def get_similarity_bert_ids_list(char_to_similarity_bert_ids_file_path, sentences_similar):
+    """
+    取得每個sentence相似讀音的字屬於那些bert的embedding id
+    """
     similarity_bert_ids_list = [{} for _ in sentences_similar]
     char_to_similarity_bert_ids = get_char_to_similarity_bert_ids(char_to_similarity_bert_ids_file_path=char_to_similarity_bert_ids_file_path)
     for (sentence_index, sentence_similar) in enumerate(sentences_similar):
@@ -130,6 +144,16 @@ def get_similarity_bert_ids_list(char_to_similarity_bert_ids_file_path, sentence
     return similarity_bert_ids_list
 
 def get_most_possible_sentences(device, model, tokenizer, sentences_similar, similarity_bert_ids_list):
+    """
+    推論出一段句子中每個字的位置替換成其他字的機率後，
+    以input句子中每個字的發音決定最後可能的替代字及其機率，
+    例如：
+        輸入：可能導致不是泡沫在見
+        原始輸出：可能導致房市泡沫再現 (這邊以字代替logits方便說明)
+        修正後輸出：可能導致股市泡沫再現 (因為只會選logits結果中與”不”的音相近的字，因此最後”股”是在這個限制條件下機率最大的字)
+    最後將sentence_list中各sentence推論的結果中各字的機率做平均，
+    取分數最高的sentence視為本次推論的結果。
+    """
     with torch.no_grad():
         probs_list = model(**tokenizer(sentences_similar,
                                        padding=True,
@@ -172,6 +196,9 @@ def get_tokenizer(checkpoints):
     return tokenizer
     
 def get_model(checkpoints, device):
+    """
+    將5個模型ensemble成最終的模型。
+    """
     model = EnsembleModel(pretrained_model_name_or_paths=checkpoints,
                           device=device)
     return model
